@@ -3,441 +3,405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Dashboard IoT</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>IoT Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --accent: #4895ef;
-            --danger: #f72585;
+            --primary: #3a86ff;
             --success: #4cc9f0;
-            --warning: #f8961e;
-            --dark: #212529;
+            --danger: #ff5a5f;
+            --accent: #8338ec;
             --light: #f8f9fa;
+            --dark: #212529;
             --gray: #6c757d;
             --white: #ffffff;
-            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
         }
 
         * {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            background-color: #f5f7fa;
+            background-color: #f5f7fb;
             color: var(--dark);
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
-        #container {
-            min-height: 100vh;
-            padding: 30px;
-            max-width: 1400px;
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 2rem;
         }
 
-        .row {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 30px;
+        .dashboard-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .dashboard-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .card {
-            flex: 1;
-            min-width: 200px;
-            padding: 25px;
-            background-color: var(--white);
+            background: var(--white);
             border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            box-shadow: var(--card-shadow);
-            transition: var(--transition);
-            border-top: 4px solid var(--primary);
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .card-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            margin-bottom: 1rem;
             color: var(--gray);
         }
 
-        .card-header i {
+        .card-icon {
             font-size: 1.2rem;
+            margin-right: 0.75rem;
+            color: var(--primary);
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .card-value {
             font-size: 2rem;
             font-weight: 600;
+            margin-bottom: 0.5rem;
         }
 
-        .text-suhu {
+        .temperature {
             color: var(--danger);
         }
 
-        .text-kelembapan {
+        .humidity {
             color: var(--success);
         }
 
-        .text-posisi-servo {
+        .servo {
             color: var(--accent);
         }
 
-        #input-lcd {
+        .slider-container {
             width: 100%;
-            outline: 0;
+            margin: 1rem 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #e0e0e0;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: var(--accent);
+        }
+
+        .input-group {
+            margin-top: 1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
             border: 1px solid #e0e0e0;
-            padding: 12px 15px;
             border-radius: 8px;
-            font-size: 0.9rem;
-            transition: var(--transition);
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            transition: border 0.2s ease;
         }
 
-        #input-lcd:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+        .input-field:focus {
+            border-color: var(--primary);
+            outline: none;
         }
 
-        #btn-submit {
+        .btn {
             width: 100%;
-            outline: 0;
-            border: 0;
+            padding: 0.75rem;
             background: var(--primary);
             color: white;
-            padding: 12px;
+            border: none;
             border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
-            transition: var(--transition);
+            cursor: pointer;
+            transition: background 0.2s ease;
         }
 
-        #btn-submit:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
+        .btn:hover {
+            background: var(--accent);
         }
 
-        .card-table {
+        .devices-table {
             width: 100%;
-            overflow-x: auto;
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         table {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            border-radius: 12px;
-            overflow: hidden;
+            border-collapse: collapse;
         }
 
-        th {
-            padding: 15px;
-            background: var(--primary);
-            color: white;
-            font-weight: 500;
+        th, td {
+            padding: 1rem;
             text-align: left;
-        }
-
-        td {
-            padding: 15px;
-            background: var(--white);
             border-bottom: 1px solid #f0f0f0;
         }
 
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background-color: #f8f9fa;
-        }
-
-        .status-online {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: #28a745;
-            font-weight: 500;
-        }
-
-        .status-online::before {
-            content: "";
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #28a745;
-        }
-
-        .status-offline {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: #dc3545;
-            font-weight: 500;
-        }
-
-        .status-offline::before {
-            content: "";
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #dc3545;
-        }
-
-        #servo-slider {
-            width: 100%;
-            height: 8px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: #e0e0e0;
-            border-radius: 10px;
-            outline: none;
-            opacity: 0.7;
-            transition: var(--transition);
-        }
-
-        #servo-slider:hover {
-            opacity: 1;
-        }
-
-        #servo-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        #servo-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-            background: var(--secondary);
-        }
-
-        .card-title {
-            font-size: 1rem;
+        th {
+            background: #f8f9fa;
             font-weight: 500;
             color: var(--gray);
         }
 
-        @media only screen and (max-width: 768px) {
-            .row {
-                flex-direction: column;
+        .status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-online {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        .status-offline {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .online-dot {
+            background: #28a745;
+        }
+
+        .offline-dot {
+            background: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
             }
 
-            .card {
-                width: 100%;
-            }
-
-            #container {
-                padding: 20px;
+            .card-grid {
+                grid-template-columns: 1fr;
             }
         }
 
-        /* Animation for values */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .value-updated {
-            animation: pulse 0.5s ease;
+        .updated {
+            animation: fadeIn 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <main>
-        <section id="container">
-            <div class="row">
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-thermometer-half"></i>
-                        <h3 class="card-title">Temperature</h3>
-                    </div>
-                    <p class="card-value text-suhu" id="suhu">?°C</p>
+    <div class="container">
+        <header class="dashboard-header">
+            <h1 class="dashboard-title">IoT Dashboard</h1>
+        </header>
+
+        <div class="card-grid">
+            <!-- Temperature Card -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-thermometer-half card-icon"></i>
+                    <h3 class="card-title">Temperature</h3>
                 </div>
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-tint"></i>
-                        <h3 class="card-title">Humidity</h3>
-                    </div>
-                    <p class="card-value text-kelembapan" id="kelembapan">?%</p>
+                <p class="card-value temperature" id="suhu">—°C</p>
+            </div>
+
+            <!-- Humidity Card -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-tint card-icon"></i>
+                    <h3 class="card-title">Humidity</h3>
                 </div>
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-cog"></i>
-                        <h3 class="card-title">Servo Position</h3>
-                    </div>
-                    <input type="range" min="0" max="180" id="servo-slider" class="slider">
-                    <p class="card-value text-posisi-servo" id="servo-text">?°</p>
+                <p class="card-value humidity" id="kelembapan">—%</p>
+            </div>
+
+            <!-- Servo Card -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-cog card-icon"></i>
+                    <h3 class="card-title">Servo Position</h3>
                 </div>
-                <div class="card">
-                    <div class="card-header">
-                        <i class="fas fa-desktop"></i>
-                        <h3 class="card-title">LCD Display</h3>
-                    </div>
-                    <input type="text" name="text-lcd" id="input-lcd" placeholder="Enter text...">
-                    <button type="button" id="btn-submit">Update Display</button>
+                <p class="card-value servo" id="servo-text">—°</p>
+                <div class="slider-container">
+                    <input type="range" min="0" max="180" value="90" class="slider" id="servo-slider">
                 </div>
             </div>
 
-            <div class="row">
-                <div class="card card-table">
-                    <div class="card-header">
-                        <i class="fas fa-microchip"></i>
-                        <h3 class="card-title">Device Status</h3>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Device ID</th>
-                                <th>Status</th>
-                                <th>Last Update</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($devices as $item)
-                                <tr>
-                                    <td>
-                                        <span>{{ $item->serial_number }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="status-offline" id="nusabot/serial_number/{{ $item->serial_number }}">Offline</span>
-                                    </td>
-                                    <td id="last-update-{{ $item->serial_number }}">
-                                        Never
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+            <!-- LCD Card -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-desktop card-icon"></i>
+                    <h3 class="card-title">LCD Display</h3>
+                </div>
+                <div class="input-group">
+                    <input type="text" class="input-field" id="input-lcd" placeholder="Enter message...">
+                    <button class="btn" id="btn-submit">Update</button>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+
+        <!-- Devices Table -->
+        <div class="card">
+            <table class="devices-table">
+                <thead>
+                    <tr>
+                        <th>Device ID</th>
+                        <th>Status</th>
+                        <th>Last Update</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($devices as $item)
+                    <tr>
+                        <td>{{ $item->serial_number }}</td>
+                        <td>
+                            <span class="status status-offline" id="nusabot/serial_number/{{ $item->serial_number }}">
+                                <span class="status-dot offline-dot"></span>
+                                Offline
+                            </span>
+                        </td>
+                        <td id="last-update-{{ $item->serial_number }}">—</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script>
-        const clientId = 'dashboard_' + Math.random().toString(16).substring(2,8)
-        const host = "wss://dashboard-iot.cloud.shiftr.io:443/mqtt"
-
-        const options = {
-            keepalive: 30,
-            clientId: clientId,
-            protocolId: 'MQTT',
-            protocolVersion: 4,
+        // MQTT Client Setup
+        const client = mqtt.connect("wss://dashboard-iot.cloud.shiftr.io:443/mqtt", {
             username: 'dashboard-iot',
             password: 'zMFFSQNxLvQ29Alg',
-            clean: true,
-            reconnectPeriod: 1000,
-            connectTimeout: 30 * 1000
-        }
+            clientId: 'web_' + Math.random().toString(16).substr(2, 8)
+        });
 
-        console.log("Connecting to broker...");
-        const client = mqtt.connect(host, options);
-        client.subscribe("nusabot/#", {qos: 1});
+        client.on('connect', () => {
+            console.log('Connected to MQTT broker');
+            client.subscribe("nusabot/#");
+        });
 
-        client.on("connect", () => {
-            console.log("Connected to broker");
-        })
+        // Handle incoming messages
+        client.on('message', (topic, message) => {
+            const value = message.toString();
+            const now = new Date().toLocaleTimeString();
 
-        client.on("message", (topic, message) => {
-            const now = new Date();
-            const timestamp = now.toLocaleTimeString();
-
-            if(topic === "nusabot/suhu"){
-                updateValueWithAnimation("suhu", message + " °C");
+            if (topic === "nusabot/suhu") {
+                updateDisplay('suhu', `${value}°C`);
             }
-            if(topic === "nusabot/kelembapan"){
-                updateValueWithAnimation("kelembapan", message + " %");
+            else if (topic === "nusabot/kelembapan") {
+                updateDisplay('kelembapan', `${value}%`);
             }
-            if(topic === "nusabot/lcd"){
-                document.getElementById("input-lcd").value = message;
+            else if (topic === "nusabot/servo") {
+                updateDisplay('servo-text', `${value}°`);
+                document.getElementById('servo-slider').value = value;
             }
-
-            if(topic === "nusabot/servo"){
-                updateValueWithAnimation("servo-text", message + "°");
-                document.getElementById("servo-slider").value = parseInt(message);
+            else if (topic === "nusabot/lcd") {
+                document.getElementById('input-lcd').value = value;
             }
 
             @foreach ($devices as $item)
-                if(topic === "nusabot/serial_number/{{ $item->serial_number }}"){
-                    const statusElement = document.getElementById("nusabot/serial_number/{{ $item->serial_number }}");
-                    const lastUpdateElement = document.getElementById("last-update-{{ $item->serial_number }}");
+                if (topic === "nusabot/serial_number/{{ $item->serial_number }}") {
+                    const statusElement = document.getElementById(`nusabot/serial_number/{{ $item->serial_number }}`);
+                    const lastUpdateElement = document.getElementById(`last-update-{{ $item->serial_number }}`);
 
-                    if(message.toString() === "Online"){
-                        statusElement.className = "status-online";
-                        statusElement.textContent = "Online";
-                        lastUpdateElement.textContent = timestamp;
+                    if (value === "Online") {
+                        statusElement.className = "status status-online";
+                        statusElement.innerHTML = '<span class="status-dot online-dot"></span> Online';
                     } else {
-                        statusElement.className = "status-offline";
-                        statusElement.textContent = "Offline";
-                        lastUpdateElement.textContent = timestamp;
+                        statusElement.className = "status status-offline";
+                        statusElement.innerHTML = '<span class="status-dot offline-dot"></span> Offline';
                     }
+                    lastUpdateElement.textContent = now;
                 }
             @endforeach
-        })
+        });
 
-        function updateValueWithAnimation(elementId, newValue) {
-            const element = document.getElementById(elementId);
-            element.textContent = newValue;
-            element.classList.add('value-updated');
-
-            setTimeout(() => {
-                element.classList.remove('value-updated');
-            }, 500);
+        // Update display with animation
+        function updateDisplay(id, value) {
+            const element = document.getElementById(id);
+            element.textContent = value;
+            element.classList.add('updated');
+            setTimeout(() => element.classList.remove('updated'), 300);
         }
 
+        // Servo slider interaction
         const servoSlider = document.getElementById('servo-slider');
-        const textServo = document.getElementById('servo-text');
-
-        servoSlider.addEventListener('input', () => {
-            textServo.textContent = `${servoSlider.value}°`;
+        servoSlider.addEventListener('change', () => {
+            const value = servoSlider.value;
+            document.getElementById('servo-text').textContent = `${value}°`;
+            client.publish("nusabot/servo", value);
         });
 
-        servoSlider.addEventListener('mouseup', () => {
-            client.publish("nusabot/servo", servoSlider.value.toString(), {qos: 1, retain: true});
-        });
-
-        const btnSubmit = document.getElementById('btn-submit');
-        const inputLcd = document.getElementById('input-lcd');
-
-        btnSubmit.addEventListener('click', () => {
-            const textValue = inputLcd.value.trim();
-
-            if (!textValue) {
-                showAlert('Please enter text for the LCD display', 'warning');
-            } else {
-                client.publish("nusabot/lcd", textValue.toString(), {qos: 1, retain: true});
-                showAlert('LCD display updated successfully!', 'success');
+        // LCD input handling
+        document.getElementById('btn-submit').addEventListener('click', () => {
+            const message = document.getElementById('input-lcd').value.trim();
+            if (message) {
+                client.publish("nusabot/lcd", message);
             }
         });
-
-        function showAlert(message, type) {
-            // In a real application, you might want to implement a proper toast notification system
-            alert(message);
-        }
     </script>
 </body>
 </html>
