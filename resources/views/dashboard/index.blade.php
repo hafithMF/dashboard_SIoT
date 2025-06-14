@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>IoT Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -329,36 +330,80 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-    <script>
-        // MQTT Client Setup
-        const client = mqtt.connect("wss://dashboard-iot.cloud.shiftr.io:443/mqtt", {
-            username: 'dashboard-iot',
-            password: 'zMFFSQNxLvQ29Alg',
-            clientId: 'web_' + Math.random().toString(16).substr(2, 8)
-        });
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<script>
+    const lastValues = {
+        "nusabot/suhu": null,
+        "nusabot/kelembapan": null,
+    };
 
-        client.on('connect', () => {
-            console.log('Connected to MQTT broker');
-            client.subscribe("nusabot/#");
-        });
+    const mqttClient = {
+        saveToDatabase: function (value, topic, namaSensor = "Sensor") {
+            // Cek apakah data sama dengan sebelumnya
+            if (lastValues[topic] === value) {
+                console.log(`Data ${namaSensor} sama, tidak dikirim.`);
+                return;
+            }
 
-        // Handle incoming messages
-        client.on('message', (topic, message) => {
+            // Simpan nilai terakhir
+            lastValues[topic] = value;
+
+            fetch("/api/sensor", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute("content"),
+                },
+                body: JSON.stringify({
+                    nama_sensor: namaSensor,
+                    data: value,
+                    topic: topic
+                }),
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err });
+                    }
+                    return response.json();
+                })
+                .then((data) => console.log("Saved to database:", data))
+                .catch((error) => console.error("Error saving to database:", error));
+        },
+
+        loadInitialData: function () {
+            fetch("/api/esp32/latest")
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.temperature !== null) {
+                        updateDisplay('suhu', `${data.temperature}°C`);
+                        lastValues["nusabot/suhu"] = data.temperature.toString();
+                    }
+                    if (data.humidity !== null) {
+                        updateDisplay('kelembapan', `${data.humidity}%`);
+                        lastValues["nusabot/kelembapan"] = data.humidity.toString();
+                    }
+                })
+                .catch((error) =>
+                    console.error("Error loading initial data:", error)
+                );
+        },
+
+        handleMessage: function (topic, message) {
             const value = message.toString();
             const now = new Date().toLocaleTimeString();
 
             if (topic === "nusabot/suhu") {
                 updateDisplay('suhu', `${value}°C`);
-            }
-            else if (topic === "nusabot/kelembapan") {
+                this.saveToDatabase(value, topic, "Suhu");
+            } else if (topic === "nusabot/kelembapan") {
                 updateDisplay('kelembapan', `${value}%`);
-            }
-            else if (topic === "nusabot/servo") {
+                this.saveToDatabase(value, topic, "Kelembapan");
+            } else if (topic === "nusabot/servo") {
                 updateDisplay('servo-text', `${value}°`);
                 document.getElementById('servo-slider').value = value;
-            }
-            else if (topic === "nusabot/lcd") {
+            } else if (topic === "nusabot/lcd") {
                 document.getElementById('input-lcd').value = value;
             }
 
@@ -377,31 +422,57 @@
                     lastUpdateElement.textContent = now;
                 }
             @endforeach
-        });
+        }
+    };
 
-        // Update display with animation
-        function updateDisplay(id, value) {
-            const element = document.getElementById(id);
+    // MQTT Client Setup
+    const client = mqtt.connect("wss://dashboard-iot.cloud.shiftr.io:443/mqtt", {
+        username: 'dashboard-iot',
+        password: 'zMFFSQNxLvQ29Alg',
+        clientId: 'web_' + Math.random().toString(16).substr(2, 8)
+    });
+
+    client.on('connect', () => {
+        console.log('Connected to MQTT broker');
+        client.subscribe("nusabot/#");
+        mqttClient.loadInitialData();
+    });
+
+    client.on('message', (topic, message) => {
+        mqttClient.handleMessage(topic, message);
+    });
+
+    // Update display
+    function updateDisplay(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
             element.textContent = value;
             element.classList.add('updated');
             setTimeout(() => element.classList.remove('updated'), 300);
         }
+    }
 
-        // Servo slider interaction
-        const servoSlider = document.getElementById('servo-slider');
+    // Servo slider interaction
+    const servoSlider = document.getElementById('servo-slider');
+    if (servoSlider) {
         servoSlider.addEventListener('change', () => {
             const value = servoSlider.value;
             document.getElementById('servo-text').textContent = `${value}°`;
             client.publish("nusabot/servo", value);
         });
+    }
 
-        // LCD input handling
-        document.getElementById('btn-submit').addEventListener('click', () => {
+    // LCD input handling
+    const lcdBtn = document.getElementById('btn-submit');
+    if (lcdBtn) {
+        lcdBtn.addEventListener('click', () => {
             const message = document.getElementById('input-lcd').value.trim();
             if (message) {
                 client.publish("nusabot/lcd", message);
             }
         });
-    </script>
+    }
+</script>
+
 </body>
 </html>
